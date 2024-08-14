@@ -26,7 +26,10 @@ libIME by introducing more modern C++ syntax and testing.
         cmake -G "Visual Studio 16 2019 Win64" <path to source folder>
 
         or
+
         cmake -G "Visual Studio 17 2022" src
         cmake -G "Visual Studio 17 2022" -A x64 src
+
+        cmake --build . --config Debug|Release
 
 *   Open generated project with Visual Studio and build it.
