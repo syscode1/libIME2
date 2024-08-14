@@ -44,7 +44,7 @@ namespace Ime {
 class ImeModule;
 class LangBarButton;
 
-class TextService:
+class LIBIME_API TextService:
     public ComObject <
         // TSF interfaces
         ComInterface<ITfTextInputProcessorEx, ITfTextInputProcessor>,
@@ -134,13 +134,13 @@ public:
 
     bool isInsertionAllowed(EditSession* session) const;
     void startComposition(ITfContext* context);
-    void endComposition(ITfContext* context);
+    void endComposition(ITfContext* context, bool bTestKey=false);
     bool compositionRect(EditSession* session, RECT* rect) const;
     bool selectionRect(EditSession* session, RECT* rect) const;
     HWND compositionWindow(EditSession* session) const;
 
     std::wstring compositionString(EditSession* session) const;
-    void setCompositionString(EditSession* session, const wchar_t* str, int len) const;
+    void setCompositionString(EditSession* session, const wchar_t* str, int len, bool bTestKey=false) const;
     void setCompositionCursor(EditSession* session, int pos) const;
 
     // compartment handling
@@ -167,10 +167,10 @@ public:
     virtual void onSetFocus();
     virtual void onKillFocus();
 
-    virtual bool filterKeyDown(KeyEvent& keyEvent);
+    virtual bool filterKeyDown(KeyEvent& keyEvent, ITfContext * pContext=nullptr);
     virtual bool onKeyDown(KeyEvent& keyEvent, EditSession* session);
     
-    virtual bool filterKeyUp(KeyEvent& keyEvent);
+    virtual bool filterKeyUp(KeyEvent& keyEvent, ITfContext * pContext=nullptr);
     virtual bool onKeyUp(KeyEvent& keyEvent, EditSession* session);
 
     virtual bool onPreservedKey(const GUID& guid);

@@ -199,7 +199,7 @@ void TextService::startComposition(ITfContext* context) {
     context->RequestEditSession(clientId_, editSession, TF_ES_SYNC|TF_ES_READWRITE, &sessionResult);
 }
 
-void TextService::endComposition(ITfContext* context) {
+void TextService::endComposition(ITfContext* context, bool bTestKey/*=false*/) {
     assert(context);
     HRESULT sessionResult;
     auto editSession = ComPtr<EditSession>::make(
@@ -219,6 +219,10 @@ void TextService::endComposition(ITfContext* context) {
                     ULONG selectionNum;
                     if (context->GetSelection(cookie, TF_DEFAULT_SELECTION, 1, &selection, &selectionNum) == S_OK) {
                         selection.range->ShiftEndToRange(cookie, compositionRange, TF_ANCHOR_END);
+
+                        if(true == bTestKey)
+                            selection.style.fInterimChar = FALSE; // add by hjlee
+
                         selection.range->Collapse(cookie, TF_ANCHOR_END);
                         context->SetSelection(cookie, 1, &selection);
                         selection.range->Release();
@@ -257,7 +261,7 @@ std::wstring TextService::compositionString(EditSession* session) const {
     return result;
 }
 
-void TextService::setCompositionString(EditSession* session, const wchar_t* str, int len) const {
+void TextService::setCompositionString(EditSession* session, const wchar_t* str, int len, bool bTestKey/*=false*/) const {
     ITfContext* context = session->context();
     if(context) {
         TfEditCookie editCookie = session->editCookie();
@@ -274,7 +278,13 @@ void TextService::setCompositionString(EditSession* session, const wchar_t* str,
                     compositionRange->SetText(editCookie, TF_ST_CORRECTION, str, len);
 
                     // move the insertion point to end of the composition string
-                    selection.range->Collapse(editCookie, TF_ANCHOR_END);
+                    if(false == bTestKey)
+                        selection.range->Collapse(editCookie, TF_ANCHOR_END);
+                    else {
+                        selection.style.fInterimChar=TRUE; // Add by hjlee (gvim/git bash must!!!)
+                        compositionRange->Collapse(editCookie, TF_ANCHOR_END);
+                    }
+
                     context->SetSelection(editCookie, 1, &selection);
                 }
 
@@ -427,7 +437,7 @@ void TextService::onDeactivate() {
 }
 
 // virtual
-bool TextService::filterKeyDown(KeyEvent& keyEvent) {
+bool TextService::filterKeyDown(KeyEvent& keyEvent, ITfContext * pContext/*=nullptr*/) {
     return false;
 }
 
@@ -437,7 +447,7 @@ bool TextService::onKeyDown(KeyEvent& keyEvent, EditSession* session) {
 }
 
 // virtual
-bool TextService::filterKeyUp(KeyEvent& keyEvent) {
+bool TextService::filterKeyUp(KeyEvent& keyEvent, ITfContext * pContext/*=nullptr*/) {
     return false;
 }
 
@@ -720,7 +730,7 @@ STDMETHODIMP TextService::OnTestKeyDown(ITfContext *pContext, WPARAM wParam, LPA
     }
     else {
         KeyEvent keyEvent(WM_KEYDOWN, wParam, lParam);
-        *pfEaten = (BOOL)filterKeyDown(keyEvent);
+        *pfEaten = (BOOL)filterKeyDown(keyEvent, pContext);
     }
     return S_OK;
 }
@@ -733,7 +743,7 @@ STDMETHODIMP TextService::OnKeyDown(ITfContext *pContext, WPARAM wParam, LPARAM 
     }
     else {
         KeyEvent keyEvent(WM_KEYDOWN, wParam, lParam);
-        *pfEaten = (BOOL)filterKeyDown(keyEvent);
+        *pfEaten = (BOOL)filterKeyDown(keyEvent, nullptr);
         if(*pfEaten) { // we want to eat the key
             HRESULT sessionResult;
             // ask TSF for an edit session. If editing is approved by TSF,
@@ -761,7 +771,7 @@ STDMETHODIMP TextService::OnTestKeyUp(ITfContext *pContext, WPARAM wParam, LPARA
     }
     else {
         KeyEvent keyEvent(WM_KEYDOWN, wParam, lParam);
-        *pfEaten = (BOOL)filterKeyUp(keyEvent);
+        *pfEaten = (BOOL)filterKeyUp(keyEvent, pContext);
     }
     return S_OK;
 }
@@ -774,7 +784,7 @@ STDMETHODIMP TextService::OnKeyUp(ITfContext *pContext, WPARAM wParam, LPARAM lP
     }
     else {
         KeyEvent keyEvent(WM_KEYUP, wParam, lParam);
-        *pfEaten = (BOOL)filterKeyUp(keyEvent);
+        *pfEaten = (BOOL)filterKeyUp(keyEvent, nullptr);
         if(*pfEaten) {
             HRESULT sessionResult;
             auto session = ComPtr<EditSession>::make(
