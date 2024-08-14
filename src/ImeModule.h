@@ -22,7 +22,7 @@
 
 #include <Unknwn.h>
 #include <Windows.h>
-
+#include "libIME.h" // LIBIME_API
 #include <Ctffunc.h>
 #include <string>
 #include <list>
@@ -46,7 +46,7 @@ struct LangProfileInfo {
 };
 
 
-class ImeModule: public ComObject<
+class LIBIME_API ImeModule: public ComObject<
     ComInterface<IClassFactory>,
     ComInterface<ITfFnConfigure>
 > {
