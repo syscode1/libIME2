@@ -47,3 +47,9 @@ add_library(libIME2 SHARED
 target_link_libraries(libIME2
     shlwapi.lib
 )
+
+set_target_properties(libIME2 PROPERTIES
+	OUTPUT_NAME "libIME2"
+	PREFIX ""
+	DEBUG_POSTFIX "d"
+)
