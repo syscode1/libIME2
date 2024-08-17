@@ -28,12 +28,14 @@
 #include <atomic>
 #include "ComObject.h"
 #include "ComPtr.h"
+#include "libIME.h"
 
 namespace Ime {
 
 class TextService;
 
-class LangBarButton:
+//class LangBarButton:
+class LIBIME_API LangBarButton:
     public ComObject<
         ComInterface<ITfLangBarItemButton, ITfLangBarItem>,
         ComInterface<ITfSource>
