@@ -34,7 +34,6 @@ namespace Ime {
 
 class TextService;
 
-//class LangBarButton:
 class LIBIME_API LangBarButton:
     public ComObject<
         ComInterface<ITfLangBarItemButton, ITfLangBarItem>,
