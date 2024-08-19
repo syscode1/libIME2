@@ -48,6 +48,12 @@ target_link_libraries(libIME2
     shlwapi.lib
 )
 
+# Debug와 Release 구성에 따른 런타임 라이브러리 설정
+target_compile_options(libIME2 PRIVATE
+        $<$<CONFIG:Debug>:/MTd>
+        $<$<CONFIG:Release>:/MT>
+    )
+
 set_target_properties(libIME2 PROPERTIES
 	OUTPUT_NAME "libIME2"
 	PREFIX ""
