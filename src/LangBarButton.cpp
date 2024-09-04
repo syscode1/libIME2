@@ -211,7 +211,6 @@ STDMETHODIMP LangBarButton::GetTooltipString(BSTR *pbstrToolTip) {
 
 // ITfLangBarItemButton
 STDMETHODIMP LangBarButton::OnClick(TfLBIClick click, POINT pt, const RECT *prcArea) {
-    /*
     if (click == TF_LBI_CLK_RIGHT && menu_) {
         UINT cmd = TrackPopupMenu(menu_, TPM_LEFTALIGN | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
                                   pt.x, pt.y, 0, ::GetFocus(), NULL);
@@ -220,7 +219,6 @@ STDMETHODIMP LangBarButton::OnClick(TfLBIClick click, POINT pt, const RECT *prcA
         }
         return S_OK;
     }
-    */
 
     auto type = click == TF_LBI_CLK_RIGHT ? TextService::COMMAND_RIGHT_CLICK : TextService::COMMAND_LEFT_CLICK;
     textService_->onCommand(commandId_, type);
